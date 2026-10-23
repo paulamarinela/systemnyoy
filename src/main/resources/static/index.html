@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RQ Tech — Repair Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- CSS Modules -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+<!-- Matrix background -->
+<div class="matrix-bg"></div>
+<div class="matrix-cols" id="matrix-cols"></div>
+
+<!-- ===== LOGIN PAGE ===== -->
+<div id="login-page">
+    <div class="matrix-bg"></div>
+    <div class="login-wrap">
+        <div class="login-logo">
+            <div class="logo-mark">
+                <div class="logo-box">RQ</div>
+                <div class="logo-text">RQ<span>Tech</span></div>
+            </div>
+        </div>
+        <div id="login-card" class="login-card">
+            <div class="login-heading">Sign in</div>
+            <div class="login-sub">Access the repair management dashboard</div>
+            <div class="lf">
+                <label>Username</label>
+                <input type="text" placeholder="Enter username"/>
+            </div>
+            <div class="lf">
+                <label>Password</label>
+                <input type="password" placeholder="Enter password"/>
+            </div>
+            <button class="btn-login">Sign In →</button>
+            <div style="text-align:center;margin-top:14px;">
+                <span style="font-size:12px;color:var(--text3);cursor:pointer;text-decoration:underline;text-underline-offset:3px;" onclick="showForgotPassword()">Forgot password?</span>
+            </div>
+            <div class="login-footer">BCrypt encrypted · Rate limited · JWT secured</div>
+        </div>
+
+        <!-- Forgot Password Panel -->
+        <div id="forgot-panel" class="login-card" style="display:none;">
+            <div style="font-size:16px;font-weight:600;margin-bottom:4px;">Reset Password</div>
+            <div style="font-size:12px;color:var(--text2);margin-bottom:20px;">Enter your email address and we will send you a password reset link.</div>
+            <div class="lf">
+                <label>Email Address</label>
+                <input type="email" id="reset-email" placeholder="your-email@example.com"/>
+            </div>
+            <button class="btn-login" id="reset-btn" onclick="sendResetLink()">Send Reset Link →</button>
+            <div style="text-align:center;margin-top:12px;">
+                <span style="display:inline-block;font-size:12px;color:var(--text3);cursor:pointer;text-decoration:underline;text-underline-offset:3px;" onclick="hideForgotPassword()">Back to Sign In</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app">
+
+    <!-- TOPNAV -->
+    <nav class="topnav">
+        <div class="nav-logo">
+            <div class="nav-logo-box">RQ</div>
+            <div class="nav-logo-text">RQ<span>Tech</span></div>
+        </div>
+
+        <div class="nav-links">
+            <div class="nav-link active" onclick="switchNav(this, 'repairs')">
+                Repairs
+            </div>
+            <div class="nav-link" onclick="switchNav(this, 'customers')">Customers</div>
+            <div class="nav-link" onclick="switchNav(this, 'sales')">Sales & Reports</div>
+            <div class="nav-link" onclick="switchNav(this, 'audit')">Audit Log</div>
+            <div class="nav-link" onclick="switchNav(this, 'settings')">Settings</div>
+        </div>
+
+        <div class="nav-right">
+            <div class="nav-user" onclick="handleLogout()">
+                <div class="nav-avatar">AD</div>
+                <div class="nav-username">admin</div>
+                <span style="color:var(--text3);font-size:10px;margin-left:4px;">Log Out</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <div class="main-wrap">
+
+        <!-- ===== REPAIRS SECTION ===== -->
+        <div class="page-section active" id="sec-repairs">
+            <div class="page-header">
+                <div>
+                    <div class="page-heading">Repair Records</div>
+                    <div class="page-sub">Manage all repair jobs · Track status · Notify customers</div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" style="padding:10px 20px;font-size:13px;font-weight:600;letter-spacing:0.3px;" onclick="openDrawer()">+ Add Repair</button>
+                </div>
+            </div>
+
+            <div class="stats-strip">
+                <div class="stat-block s-maroon">
+                    <div class="stat-label">All Repairs</div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-hint">All time records</div>
+                </div>
+                <div class="stat-block s-yellow">
+                    <div class="stat-label">Pending</div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-hint">Awaiting technician</div>
+                </div>
+                <div class="stat-block s-blue">
+                    <div class="stat-label">Ongoing</div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-hint">In progress</div>
+                </div>
+                <div class="stat-block s-green">
+                    <div class="stat-label">Completed</div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-hint">Finished repairs</div>
+                </div>
+            </div>
+
+            <div class="data-table-wrap">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Contact</th>
+                        <th>Device</th>
+                        <th>Issue</th>
+                        <th>Repair Status</th>
+                        <th>Bill</th>
+                        <th>Payment</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="repairs-tbody">
+                    <!-- Dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div><!-- end sec-repairs -->
+
+        <!-- ===== CUSTOMERS SECTION ===== -->
+        <div class="page-section" id="sec-customers">
+            <div class="page-header">
+                <div>
+                    <div class="page-heading">Customers</div>
+                    <div class="page-sub">Customer profiles and repair history</div>
+                </div>
+            </div>
+
+            <div class="data-table-wrap">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Total Visits</th>
+                        <th>Last Visit</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="customer-tbody">
+                    <!-- Dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== SALES SECTION ===== -->
+        <div class="page-section" id="sec-sales">
+            <div class="page-header">
+                <div>
+                    <div class="page-heading">Sales & Reports</div>
+                    <div class="page-sub">Revenue tracking and data overview</div>
+                </div>
+            </div>
+
+            <div class="stats-strip">
+                <div class="stat-block s-maroon">
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value">₱0</div>
+                    <div class="stat-hint">All paid repairs</div>
+                </div>
+                <div class="stat-block s-blue">
+                    <div class="stat-label">Paid Repairs</div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-hint">Completed and paid</div>
+                </div>
+            </div>
+
+            <div class="s-card">
+                <div class="s-card-head">
+                    <div class="s-card-title">Paid Repairs (Current Month)</div>
+                </div>
+                <div class="data-table-wrap">
+                    <table class="data-table">
+                        <thead><tr>
+                            <th>ID</th><th>Customer</th><th>Device</th><th>Bill</th><th>Date</th>
+                        </tr></thead>
+                        <tbody>
+                        <!-- Dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== AUDIT LOG SECTION ===== -->
+        <div class="page-section" id="sec-audit">
+            <div class="page-header">
+                <div>
+                    <div class="page-heading">Audit Log</div>
+                    <div class="page-sub">Full record of all staff actions and system changes</div>
+                </div>
+            </div>
+
+            <div class="data-table-wrap">
+                <!-- Dynamically populated audit rows -->
+            </div>
+        </div>
+
+        <!-- ===== SETTINGS SECTION ===== -->
+        <div class="page-section" id="sec-settings">
+            <div class="page-header">
+                <div>
+                    <div class="page-heading">Settings</div>
+                    <div class="page-sub">Account, backup, storage and system configuration</div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchSettingsTab(this,'tab-account')">Account</div>
+                <div class="tab" onclick="switchSettingsTab(this,'tab-backup')">Backup & Recovery</div>
+                <div class="tab" onclick="switchSettingsTab(this,'tab-system')">System Info</div>
+            </div>
+
+            <div id="tab-account" class="settings-tab">
+                <div class="s-card" style="max-width: 500px;">
+                    <div class="s-card-head">
+                        <div class="s-card-title">Change Password</div>
+                    </div>
+                    <div class="s-card-body">
+                        <div style="margin-bottom:12px;">
+                            <label class="form-label">Current Password</label>
+                            <input class="form-input" type="password" id="old-pass"/>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <label class="form-label">New Password</label>
+                            <input class="form-input" type="password" id="new-pass"/>
+                        </div>
+                        <button class="btn btn-primary" style="width:100%;justify-content:center;">Update Password</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-backup" class="settings-tab" style="display:none;">
+                <div class="s-card" style="max-width: 500px;">
+                    <div class="s-card-head">
+                        <div class="s-card-title">Database Backup</div>
+                    </div>
+                    <div class="s-card-body">
+                        <div class="info-row"><span class="info-key">Status</span><span class="info-val green">READY</span></div>
+                        <div style="margin-top:16px;">
+                            <button class="btn btn-primary" style="width:100%;justify-content:center;">Create Backup Now →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-system" class="settings-tab" style="display:none;">
+                <div class="s-card" style="max-width:500px;">
+                    <div class="s-card-head">
+                        <div class="s-card-title">System Information</div>
+                    </div>
+                    <div class="s-card-body">
+                        <div class="info-row"><span class="info-key">Version</span><span class="info-val">1.0.0</span></div>
+                        <div class="info-row"><span class="info-key">Framework</span><span class="info-val">Spring Boot 3.2.0</span></div>
+                        <div class="info-row"><span class="info-key">Database</span><span class="info-val">MySQL 8.0</span></div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- end sec-settings -->
+
+    </div>
+</div>
+
+<!-- ===== ADD REPAIR DRAWER ===== -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="add-repair-drawer">
+    <div class="drawer-header">
+        <div>
+            <div class="drawer-title">Add New Repair</div>
+            <div class="drawer-sub">Create a new repair record for incoming device</div>
+        </div>
+        <button class="drawer-close" onclick="closeDrawer()">✕ Close</button>
+    </div>
+
+    <div class="drawer-body">
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input class="form-input" placeholder="e.g. Juan dela Cruz"/>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Contact Number *</label>
+                <input class="form-input" placeholder="09XXXXXXXXX"/>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input class="form-input" placeholder="customer@email.com"/>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Address</label>
+                <input class="form-input" placeholder="Barangay, City"/>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Device Name *</label>
+                <input class="form-input" placeholder="e.g. iPhone 13 Pro"/>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Serial Number</label>
+                <input class="form-input" placeholder="Device serial number"/>
+            </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label class="form-label">Issue / Problem *</label>
+            <textarea class="form-textarea" placeholder="Describe the problem in detail..." style="min-height:160px;"></textarea>
+        </div>
+
+        <div class="upload-box">
+            <div class="upload-icon">⬆</div>
+            <div class="upload-text">Reference Photo</div>
+            <input type="file" style="display:none;" id="repair-photo">
+            <div class="upload-hint">Click to select photo</div>
+        </div>
+    </div>
+
+    <div class="drawer-footer">
+        <button class="btn btn-ghost" style="flex:1;justify-content:center;" onclick="closeDrawer()">Cancel</button>
+        <button class="btn btn-primary" style="flex:2;justify-content:center;">Save Repair Record →</button>
+    </div>
+</div>
+
+<!-- JS Main Application -->
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>
